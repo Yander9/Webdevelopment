@@ -12,30 +12,26 @@
         }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
             padding: 20px;
+            line-height: 1.6;
         }
         
         .container {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            padding: 40px;
-            width: 100%;
             max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
         
         h1 {
-            color: #333;
             text-align: center;
+            color: #333;
             margin-bottom: 30px;
-            font-size: 28px;
-            font-weight: 600;
+            font-size: 24px;
         }
         
         .form-group {
@@ -44,125 +40,92 @@
         
         label {
             display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
+            margin-bottom: 5px;
+            font-weight: bold;
             color: #555;
         }
         
         input[type="text"],
         input[type="number"],
-        input[type="date"],
         select {
             width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e1e5e9;
-            border-radius: 8px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
             font-size: 16px;
-            transition: all 0.3s ease;
-            background-color: #f8f9fa;
         }
         
-        input:focus,
-        select:focus {
-            outline: none;
-            border-color: #667eea;
-            background-color: white;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        .radio-group,
+        .checkbox-group {
+            margin-top: 10px;
         }
         
-        .radio-group, .checkbox-group {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-top: 5px;
-        }
-        
-        .radio-item, .checkbox-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .radio-item input[type="radio"],
-        .checkbox-item input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            accent-color: #667eea;
+        .radio-item,
+        .checkbox-item {
+            margin-bottom: 8px;
         }
         
         .radio-item label,
         .checkbox-item label {
-            margin-bottom: 0;
             font-weight: normal;
-            cursor: pointer;
+            margin-left: 5px;
         }
         
         button {
             width: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #4CAF50;
             color: white;
             border: none;
-            padding: 15px;
-            border-radius: 8px;
-            font-size: 18px;
-            font-weight: 600;
+            padding: 12px;
+            border-radius: 4px;
+            font-size: 16px;
             cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
             margin-top: 10px;
         }
         
         button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
-        }
-        
-        button:active {
-            transform: translateY(0);
+            background: #45a049;
         }
         
         #result {
-            margin-top: 25px;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            border-left: 4px solid #667eea;
-            display: none;
-        }
-        
-        #result h3 {
-            color: #333;
-            margin-bottom: 15px;
-        }
-        
-        .result-item {
-            margin-bottom: 8px;
-            padding: 8px 0;
-            border-bottom: 1px solid #e9ecef;
-        }
-        
-        .result-item:last-child {
-            border-bottom: none;
-            margin-bottom: 0;
-        }
-        
-        .result-label {
-            font-weight: 600;
-            color: #495057;
-        }
-        
-        .result-value {
-            color: #667eea;
-            margin-top: 3px;
+            margin-top: 20px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 4px;
+            border: 1px solid #ddd;
         }
         
         .required {
-            color: #dc3545;
+            color: #ff4444;
+        }
+
+        .success {
+            background-color: #dff0d8 !important;
+            border-color: #d6e9c6 !important;
+            color: #3c763d;
+        }
+
+        .error {
+            background-color: #f8d7da !important;
+            border-color: #f5c6cb !important;
+            color: #721c24;
+        }
+
+        .result-item {
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>📚 Регистрация студента</h1>
+        <h1>Регистрация студента</h1>
         
         <form id="studentForm">
             <!-- Имя (текстовое поле) -->
@@ -213,93 +176,174 @@
             <div class="form-group">
                 <div class="checkbox-item">
                     <input type="checkbox" id="agree" name="agree" value="yes" required>
-                    <label for="agree">Я согласен(на) с правилами университета и обработкой персональных данных <span class="required">*</span></label>
+                    <label for="agree">Я согласен(на) с правилами университета <span class="required">*</span></label>
                 </div>
             </div>
 
             <button type="submit">Зарегистрироваться</button>
         </form>
 
+        <!-- Блок для вывода результатов -->
         <div id="result"></div>
     </div>
 
+    <!-- JavaScript обработка формы -->
     <script>
-        document.getElementById("studentForm").addEventListener("submit", function(e) {
-            e.preventDefault();
+        // Функция для отображения результата в div
+        function displayFormResult(formData, isSuccess = true) {
+            const resultDiv = document.getElementById("result");
             
-            // Собираем данные формы
-            const formData = new FormData(this);
-            const formValues = Object.fromEntries(formData.entries());
-            
-            // Проверяем обязательные поля
-            if (!formValues.name || !formValues.age || !formValues.faculty || !formValues.educationForm || !formValues.agree) {
-                alert("Пожалуйста, заполните все обязательные поля!");
-                return;
-            }
+            if (isSuccess) {
+                // Преобразуем значения для красивого отображения
+                const facultyNames = {
+                    'informatics': 'Информатика и вычислительная техника',
+                    'economics': 'Экономика и управление',
+                    'linguistics': 'Лингвистика и межкультурная коммуникация',
+                    'law': 'Юриспруденция',
+                    'engineering': 'Инженерный факультет'
+                };
 
-            // Форматируем вывод
-            let output = '<h3>✅ Регистрация успешно завершена!</h3>';
-            
-            const fieldLabels = {
-                'name': 'ФИО студента',
-                'age': 'Возраст',
-                'faculty': 'Факультет',
-                'educationForm': 'Форма обучения',
-                'agree': 'Согласие с правилами'
-            };
+                const educationForms = {
+                    'full-time': 'Очная форма',
+                    'part-time': 'Заочная форма',
+                    'evening': 'Вечерняя форма'
+                };
 
-            const facultyNames = {
-                'informatics': 'Информатика и вычислительная техника',
-                'economics': 'Экономика и управление',
-                'linguistics': 'Лингвистика и межкультурная коммуникация',
-                'law': 'Юриспруденция',
-                'engineering': 'Инженерный факультет'
-            };
+                const facultyDisplay = facultyNames[formData.faculty] || formData.faculty;
+                const educationFormDisplay = educationForms[formData.educationForm] || formData.educationForm;
 
-            const educationForms = {
-                'full-time': 'Очная форма',
-                'part-time': 'Заочная форма',
-                'evening': 'Вечерняя форма'
-            };
-
-            for (const [name, value] of Object.entries(formValues)) {
-                let displayValue = value;
-                
-                if (name === 'faculty') {
-                    displayValue = facultyNames[value] || value;
-                } else if (name === 'educationForm') {
-                    displayValue = educationForms[value] || value;
-                } else if (name === 'agree') {
-                    displayValue = 'Да';
-                }
-                
-                output += `
+                resultDiv.innerHTML = `
+                    <h3>✅ Регистрация успешно завершена!</h3>
                     <div class="result-item">
-                        <div class="result-label">${fieldLabels[name]}:</div>
-                        <div class="result-value">${displayValue}</div>
+                        <strong>ФИО студента:</strong> ${formData.name}
+                    </div>
+                    <div class="result-item">
+                        <strong>Возраст:</strong> ${formData.age} лет
+                    </div>
+                    <div class="result-item">
+                        <strong>Факультет:</strong> ${facultyDisplay}
+                    </div>
+                    <div class="result-item">
+                        <strong>Форма обучения:</strong> ${educationFormDisplay}
+                    </div>
+                    <div class="result-item">
+                        <strong>Согласие с правилами:</strong> ${formData.agree}
+                    </div>
+                    <div style="margin-top: 15px; font-size: 14px; color: #666;">
+                        <em>Дата регистрации: ${new Date().toLocaleString()}</em>
                     </div>
                 `;
+                resultDiv.className = 'success';
+            } else {
+                resultDiv.innerHTML = `
+                    <h3>❌ Ошибка при заполнении формы</h3>
+                    <p>${formData.message}</p>
+                    <p style="margin-top: 10px; font-size: 14px;">Пожалуйста, проверьте введенные данные и попробуйте снова.</p>
+                `;
+                resultDiv.className = 'error';
             }
-
-            // Показываем результат
-            const resultDiv = document.getElementById("result");
-            resultDiv.innerHTML = output;
-            resultDiv.style.display = 'block';
-
+            
             // Прокручиваем к результату
             resultDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Функция для проверки валидности формы
+        function validateForm(formData) {
+            const errors = [];
+            
+            if (!formData.name.trim()) {
+                errors.push("ФИО студента обязательно для заполнения");
+            }
+            
+            if (!formData.age || formData.age < 16 || formData.age > 60) {
+                errors.push("Возраст должен быть от 16 до 60 лет");
+            }
+            
+            if (!formData.faculty) {
+                errors.push("Выберите факультет");
+            }
+            
+            if (!formData.educationForm) {
+                errors.push("Выберите форму обучения");
+            }
+            
+            if (formData.agree === 'Нет') {
+                errors.push("Необходимо согласие с правилами университета");
+            }
+            
+            return errors;
+        }
+
+        // Обработчик события отправки формы
+        document.getElementById("studentForm").addEventListener("submit", function(event) {
+            // Предотвращаем перезагрузку страницы
+            event.preventDefault();
+            
+            // Получаем значения из формы
+            const name = document.getElementById("name").value;
+            const age = document.getElementById("age").value;
+            const faculty = document.getElementById("faculty").value;
+            
+            // Получаем выбранную форму обучения
+            let educationForm = "";
+            const educationForms = document.getElementsByName("educationForm");
+            for (const form of educationForms) {
+                if (form.checked) {
+                    educationForm = form.value;
+                    break;
+                }
+            }
+            
+            // Получаем значение чекбокса
+            const agree = document.getElementById("agree").checked ? "Да" : "Нет";
+            
+            // Собираем данные формы
+            const formData = {
+                name: name,
+                age: age,
+                faculty: faculty,
+                educationForm: educationForm,
+                agree: agree
+            };
+
+            // Проверяем валидность
+            const errors = validateForm(formData);
+            
+            if (errors.length > 0) {
+                // Показываем ошибки
+                displayFormResult({
+                    message: errors.join('<br>')
+                }, false);
+            } else {
+                // Показываем успешный результат
+                displayFormResult(formData, true);
+                
+                // Очищаем форму после успешной отправки (опционально)
+                // document.getElementById("studentForm").reset();
+            }
         });
 
-        // Добавляем валидацию в реальном времени
-        document.querySelectorAll('input, select').forEach(element => {
-            element.addEventListener('blur', function() {
-                if (this.hasAttribute('required') && !this.value) {
-                    this.style.borderColor = '#dc3545';
-                } else {
-                    this.style.borderColor = '#e1e5e9';
-                }
+        // Дополнительно: можно добавить обработчики для реальной отправки на сервер
+        /*
+        function sendToServer(formData) {
+            fetch('process.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                displayFormResult(data, data.success);
+            })
+            .catch(error => {
+                displayFormResult({
+                    message: 'Ошибка соединения с сервером'
+                }, false);
             });
-        });
+        }
+        */
     </script>
 </body>
 </html>
