@@ -16,4 +16,4 @@ services:
     volumes:
       - ./www:/var/www/html
     expose:
-      - "9000"
+    - "9000"
