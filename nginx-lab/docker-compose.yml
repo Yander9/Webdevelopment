@@ -6,8 +6,9 @@ services:
       - "3000:80"
     volumes:
       - ./code:/usr/share/nginx/html
-depends_on:
- - php
+    depends_on:
+      - php
+
 
 php:
   image: php:8.2-fpm
