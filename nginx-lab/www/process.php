@@ -10,6 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo '</div>';
     exit;
 }
+
 // Получаем и очищаем данные из формы
 $name = trim($_POST['name'] ?? '');
 $age = trim($_POST['age'] ?? '');
@@ -72,20 +73,6 @@ $educationForms = [
 
 $facultyDisplay = $facultyNames[$faculty] ?? $faculty;
 $educationFormDisplay = $educationForms[$educationForm] ?? $educationForm;
-
-// Сохраняем данные в файл (опционально)
-$data = [
-    'timestamp' => date('Y-m-d H:i:s'),
-    'name' => $name,
-    'age' => $age,
-    'faculty' => $faculty,
-    'education_form' => $educationForm,
-    'agree' => $agree
-];
-
-$filename = 'registrations.txt';
-$logEntry = date('Y-m-d H:i:s') . " | $name | $age | $facultyDisplay | $educationFormDisplay | $agree" . PHP_EOL;
-file_put_contents($filename, $logEntry, FILE_APPEND | LOCK_EX);
 
 // Выводим результат
 ?>
@@ -175,7 +162,7 @@ file_put_contents($filename, $logEntry, FILE_APPEND | LOCK_EX);
         <h1>✅ Регистрация завершена успешно!</h1>
         
         <div class="success-message">
-            <strong>Спасибо за регистрацию!</strong> Данные студента успешно сохранены.
+            <strong>Спасибо за регистрацию!</strong> Данные студента успешно обработаны.
         </div>
 
         <div class="student-info">
@@ -212,7 +199,6 @@ file_put_contents($filename, $logEntry, FILE_APPEND | LOCK_EX);
         </div>
 
         <a href="form.html" class="back-link">← Вернуться к форме регистрации</a>
-        <a href="registrations.txt" class="back-link" style="margin-top: 10px;">📊 Посмотреть все регистрации</a>
     </div>
 </body>
 </html>
