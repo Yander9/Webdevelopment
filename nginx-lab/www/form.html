@@ -110,24 +110,14 @@
             border-color: #f5c6cb !important;
             color: #721c24;
         }
-
-        .result-item {
-            margin-bottom: 10px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .result-item:last-child {
-            border-bottom: none;
-            margin-bottom: 0;
-        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Регистрация студента</h1>
         
-        <form id="studentForm">
+        <!-- Форма отправляет данные на process.php -->
+        <form id="studentForm" action="process.php" method="POST">
             <!-- Имя (текстовое поле) -->
             <div class="form-group">
                 <label for="name">ФИО студента <span class="required">*</span></label>
@@ -183,167 +173,31 @@
             <button type="submit">Зарегистрироваться</button>
         </form>
 
-        <!-- Блок для вывода результатов -->
+        <!-- Блок для вывода результатов (для AJAX) -->
         <div id="result"></div>
     </div>
 
-    <!-- JavaScript обработка формы -->
+    <!-- JavaScript для AJAX отправки (опционально) -->
     <script>
-        // Функция для отображения результата в div
-        function displayFormResult(formData, isSuccess = true) {
-            const resultDiv = document.getElementById("result");
-            
-            if (isSuccess) {
-                // Преобразуем значения для красивого отображения
-                const facultyNames = {
-                    'informatics': 'Информатика и вычислительная техника',
-                    'economics': 'Экономика и управление',
-                    'linguistics': 'Лингвистика и межкультурная коммуникация',
-                    'law': 'Юриспруденция',
-                    'engineering': 'Инженерный факультет'
-                };
-
-                const educationForms = {
-                    'full-time': 'Очная форма',
-                    'part-time': 'Заочная форма',
-                    'evening': 'Вечерняя форма'
-                };
-
-                const facultyDisplay = facultyNames[formData.faculty] || formData.faculty;
-                const educationFormDisplay = educationForms[formData.educationForm] || formData.educationForm;
-
-                resultDiv.innerHTML = `
-                    <h3>✅ Регистрация успешно завершена!</h3>
-                    <div class="result-item">
-                        <strong>ФИО студента:</strong> ${formData.name}
-                    </div>
-                    <div class="result-item">
-                        <strong>Возраст:</strong> ${formData.age} лет
-                    </div>
-                    <div class="result-item">
-                        <strong>Факультет:</strong> ${facultyDisplay}
-                    </div>
-                    <div class="result-item">
-                        <strong>Форма обучения:</strong> ${educationFormDisplay}
-                    </div>
-                    <div class="result-item">
-                        <strong>Согласие с правилами:</strong> ${formData.agree}
-                    </div>
-                    <div style="margin-top: 15px; font-size: 14px; color: #666;">
-                        <em>Дата регистрации: ${new Date().toLocaleString()}</em>
-                    </div>
-                `;
-                resultDiv.className = 'success';
-            } else {
-                resultDiv.innerHTML = `
-                    <h3>❌ Ошибка при заполнении формы</h3>
-                    <p>${formData.message}</p>
-                    <p style="margin-top: 10px; font-size: 14px;">Пожалуйста, проверьте введенные данные и попробуйте снова.</p>
-                `;
-                resultDiv.className = 'error';
-            }
-            
-            // Прокручиваем к результату
-            resultDiv.scrollIntoView({ behavior: 'smooth' });
-        }
-
-        // Функция для проверки валидности формы
-        function validateForm(formData) {
-            const errors = [];
-            
-            if (!formData.name.trim()) {
-                errors.push("ФИО студента обязательно для заполнения");
-            }
-            
-            if (!formData.age || formData.age < 16 || formData.age > 60) {
-                errors.push("Возраст должен быть от 16 до 60 лет");
-            }
-            
-            if (!formData.faculty) {
-                errors.push("Выберите факультет");
-            }
-            
-            if (!formData.educationForm) {
-                errors.push("Выберите форму обучения");
-            }
-            
-            if (formData.agree === 'Нет') {
-                errors.push("Необходимо согласие с правилами университета");
-            }
-            
-            return errors;
-        }
-
-        // Обработчик события отправки формы
+        // Если хотите оставить AJAX отправку вместо перезагрузки страницы
         document.getElementById("studentForm").addEventListener("submit", function(event) {
-            // Предотвращаем перезагрузку страницы
             event.preventDefault();
             
-            // Получаем значения из формы
-            const name = document.getElementById("name").value;
-            const age = document.getElementById("age").value;
-            const faculty = document.getElementById("faculty").value;
+            const formData = new FormData(this);
+            const resultDiv = document.getElementById("result");
             
-            // Получаем выбранную форму обучения
-            let educationForm = "";
-            const educationForms = document.getElementsByName("educationForm");
-            for (const form of educationForms) {
-                if (form.checked) {
-                    educationForm = form.value;
-                    break;
-                }
-            }
-            
-            // Получаем значение чекбокса
-            const agree = document.getElementById("agree").checked ? "Да" : "Нет";
-            
-            // Собираем данные формы
-            const formData = {
-                name: name,
-                age: age,
-                faculty: faculty,
-                educationForm: educationForm,
-                agree: agree
-            };
-
-            // Проверяем валидность
-            const errors = validateForm(formData);
-            
-            if (errors.length > 0) {
-                // Показываем ошибки
-                displayFormResult({
-                    message: errors.join('<br>')
-                }, false);
-            } else {
-                // Показываем успешный результат
-                displayFormResult(formData, true);
-                
-                // Очищаем форму после успешной отправки (опционально)
-                // document.getElementById("studentForm").reset();
-            }
-        });
-
-        // Дополнительно: можно добавить обработчики для реальной отправки на сервер
-        /*
-        function sendToServer(formData) {
             fetch('process.php', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData)
+                body: formData
             })
-            .then(response => response.json())
+            .then(response => response.text())
             .then(data => {
-                displayFormResult(data, data.success);
+                resultDiv.innerHTML = data;
             })
             .catch(error => {
-                displayFormResult({
-                    message: 'Ошибка соединения с сервером'
-                }, false);
+                resultDiv.innerHTML = '<p style="color: red;">Ошибка отправки формы</p>';
             });
-        }
-        */
+        });
     </script>
 </body>
 </html>
