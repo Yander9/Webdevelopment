@@ -87,28 +87,8 @@
             background: #45a049;
         }
         
-        #result {
-            margin-top: 20px;
-            padding: 15px;
-            background: #f9f9f9;
-            border-radius: 4px;
-            border: 1px solid #ddd;
-        }
-        
         .required {
             color: #ff4444;
-        }
-
-        .success {
-            background-color: #dff0d8 !important;
-            border-color: #d6e9c6 !important;
-            color: #3c763d;
-        }
-
-        .error {
-            background-color: #f8d7da !important;
-            border-color: #f5c6cb !important;
-            color: #721c24;
         }
     </style>
 </head>
@@ -172,31 +152,52 @@
 
             <button type="submit">Зарегистрироваться</button>
         </form>
-
-        <!-- Блок для вывода результатов (для AJAX) -->
-        <div id="result"></div>
     </div>
 
-    <!-- JavaScript для AJAX отправки (опционально) -->
+    <!-- JavaScript только для alert перед отправкой -->
     <script>
-        // Если хотите оставить AJAX отправку вместо перезагрузки страницы
-        document.getElementById("studentForm").addEventListener("submit", function(event) {
-            event.preventDefault();
+        document.getElementById("studentForm").addEventListener("submit", function(e) {
+            // Получаем значения из формы для alert
+            const name = document.getElementById("name").value;
+            const age = document.getElementById("age").value;
+            const faculty = document.getElementById("faculty").value;
             
-            const formData = new FormData(this);
-            const resultDiv = document.getElementById("result");
+            // Получаем выбранную форму обучения
+            let educationForm = "";
+            const educationForms = document.getElementsByName("educationForm");
+            for (const form of educationForms) {
+                if (form.checked) {
+                    educationForm = form.value;
+                    break;
+                }
+            }
             
-            fetch('process.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.text())
-            .then(data => {
-                resultDiv.innerHTML = data;
-            })
-            .catch(error => {
-                resultDiv.innerHTML = '<p style="color: red;">Ошибка отправки формы</p>';
-            });
+            // Получаем значение чекбокса
+            const agree = document.getElementById("agree").checked ? "Да" : "Нет";
+
+            // Преобразуем значения для красивого отображения в alert
+            const facultyNames = {
+                'informatics': 'Информатика и вычислительная техника',
+                'economics': 'Экономика и управление',
+                'linguistics': 'Лингвистика и межкультурная коммуникация',
+                'law': 'Юриспруденция',
+                'engineering': 'Инженерный факультет'
+            };
+
+            const educationFormsDisplay = {
+                'full-time': 'Очная форма',
+                'part-time': 'Заочная форма',
+                'evening': 'Вечерняя форма'
+            };
+
+            const facultyDisplay = facultyNames[faculty] || faculty;
+            const educationFormDisplay = educationFormsDisplay[educationForm] || educationForm;
+
+            // Показываем alert с введенными данными
+            alert(`Проверьте введенные данные:\n\nФИО: ${name}\nВозраст: ${age}\nФакультет: ${facultyDisplay}\nФорма обучения: ${educationFormDisplay}\nСогласие с правилами: ${agree}\n\nНажмите OK для отправки данных на сервер.`);
+            
+            // Форма продолжит отправку на process.php после закрытия alert
+            // НЕ используем e.preventDefault() - форма отправится нормально
         });
     </script>
 </body>
