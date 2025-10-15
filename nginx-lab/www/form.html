@@ -5,112 +5,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Регистрация студента</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
-            padding: 20px;
-            line-height: 1.6;
-        }
-        
-        .container {
-            max-width: 500px;
-            margin: 0 auto;
-            background: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 30px;
-            font-size: 24px;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #555;
-        }
-        
-        input[type="text"],
-        input[type="number"],
-        select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 16px;
-        }
-        
-        .radio-group,
-        .checkbox-group {
-            margin-top: 10px;
-        }
-        
-        .radio-item,
-        .checkbox-item {
-            margin-bottom: 8px;
-        }
-        
-        .radio-item label,
-        .checkbox-item label {
-            font-weight: normal;
-            margin-left: 5px;
-        }
-        
-        button {
-            width: 100%;
-            background: #4CAF50;
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 4px;
-            font-size: 16px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        
-        button:hover {
-            background: #45a049;
-        }
-        
-        .required {
-            color: #ff4444;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: Arial; background: #f5f5f5; padding: 20px; }
+        .container { max-width: 500px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; }
+        h1 { text-align: center; color: #333; margin-bottom: 30px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 16px; }
+        .radio-group { margin-top: 10px; }
+        .radio-item { margin-bottom: 8px; }
+        button { width: 100%; background: #4CAF50; color: white; border: none; padding: 12px; border-radius: 4px; cursor: pointer; }
+        .required { color: #ff4444; }
+        .links { text-align: center; margin-top: 20px; }
+        .links a { color: #4CAF50; text-decoration: none; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Регистрация студента</h1>
         
-        <!-- Форма отправляет данные на process.php -->
         <form id="studentForm" action="process.php" method="POST">
-            <!-- Имя (текстовое поле) -->
             <div class="form-group">
                 <label for="name">ФИО студента <span class="required">*</span></label>
                 <input type="text" id="name" name="name" placeholder="Введите ваше полное имя" required>
             </div>
 
-            <!-- Возраст (числовое поле) -->
+            <div class="form-group">
+                <label for="email">Email <span class="required">*</span></label>
+                <input type="email" id="email" name="email" placeholder="example@mail.ru" required>
+            </div>
+
             <div class="form-group">
                 <label for="age">Возраст <span class="required">*</span></label>
                 <input type="number" id="age" name="age" min="16" max="60" placeholder="Введите ваш возраст" required>
             </div>
 
-            <!-- Факультет (выпадающий список) -->
             <div class="form-group">
                 <label for="faculty">Факультет <span class="required">*</span></label>
                 <select id="faculty" name="faculty" required>
@@ -123,7 +52,6 @@
                 </select>
             </div>
 
-            <!-- Форма обучения (радио-кнопки) -->
             <div class="form-group">
                 <label>Форма обучения <span class="required">*</span></label>
                 <div class="radio-group">
@@ -135,34 +63,24 @@
                         <input type="radio" id="part-time" name="educationForm" value="part-time">
                         <label for="part-time">Заочная форма</label>
                     </div>
-                    <div class="radio-item">
-                        <input type="radio" id="evening" name="educationForm" value="evening">
-                        <label for="evening">Вечерняя форма</label>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Согласие с правилами (чекбокс) -->
-            <div class="form-group">
-                <div class="checkbox-item">
-                    <input type="checkbox" id="agree" name="agree" value="yes" required>
-                    <label for="agree">Я согласен(на) с правилами университета <span class="required">*</span></label>
                 </div>
             </div>
 
             <button type="submit">Зарегистрироваться</button>
         </form>
+
+        <div class="links">
+            <a href="index.php">← На главную</a>
+        </div>
     </div>
 
-    <!-- JavaScript только для alert перед отправкой -->
     <script>
         document.getElementById("studentForm").addEventListener("submit", function(e) {
-            // Получаем значения из формы для alert
             const name = document.getElementById("name").value;
+            const email = document.getElementById("email").value;
             const age = document.getElementById("age").value;
             const faculty = document.getElementById("faculty").value;
             
-            // Получаем выбранную форму обучения
             let educationForm = "";
             const educationForms = document.getElementsByName("educationForm");
             for (const form of educationForms) {
@@ -171,33 +89,8 @@
                     break;
                 }
             }
-            
-            // Получаем значение чекбокса
-            const agree = document.getElementById("agree").checked ? "Да" : "Нет";
 
-            // Преобразуем значения для красивого отображения в alert
-            const facultyNames = {
-                'informatics': 'Информатика и вычислительная техника',
-                'economics': 'Экономика и управление',
-                'linguistics': 'Лингвистика и межкультурная коммуникация',
-                'law': 'Юриспруденция',
-                'engineering': 'Инженерный факультет'
-            };
-
-            const educationFormsDisplay = {
-                'full-time': 'Очная форма',
-                'part-time': 'Заочная форма',
-                'evening': 'Вечерняя форма'
-            };
-
-            const facultyDisplay = facultyNames[faculty] || faculty;
-            const educationFormDisplay = educationFormsDisplay[educationForm] || educationForm;
-
-            // Показываем alert с введенными данными
-            alert(`Проверьте введенные данные:\n\nФИО: ${name}\nВозраст: ${age}\nФакультет: ${facultyDisplay}\nФорма обучения: ${educationFormDisplay}\nСогласие с правилами: ${agree}\n\nНажмите OK для отправки данных на сервер.`);
-            
-            // Форма продолжит отправку на process.php после закрытия alert
-            // НЕ используем e.preventDefault() - форма отправится нормально
+            alert(`Проверьте данные:\n\nФИО: ${name}\nEmail: ${email}\nВозраст: ${age}\nФакультет: ${faculty}\nФорма обучения: ${educationForm}\n\nНажмите OK для отправки.`);
         });
     </script>
 </body>
