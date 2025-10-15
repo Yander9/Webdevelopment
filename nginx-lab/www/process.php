@@ -1,31 +1,57 @@
 <?php
-// process.php - обработка данных формы с использованием сессий
 session_start();
 
-// Получаем и очищаем данные из формы
+// Получаем данные
 $name = htmlspecialchars(trim($_POST['name'] ?? ''));
+$email = htmlspecialchars(trim($_POST['email'] ?? ''));
 $age = htmlspecialchars(trim($_POST['age'] ?? ''));
 $faculty = htmlspecialchars($_POST['faculty'] ?? '');
 $educationForm = htmlspecialchars($_POST['educationForm'] ?? '');
-$agree = isset($_POST['agree']) ? 'Да' : 'Нет';
 
-// Сохраняем данные в сессию
-$_SESSION['form_data'] = [
-    'name' => $name,
-    'age' => $age,
-    'faculty' => $faculty,
-    'educationForm' => $educationForm,
-    'agree' => $agree,
-    'timestamp' => date('Y-m-d H:i:s')
-];
+// Валидация
+$errors = [];
 
-// Сохраняем также отдельные переменные для удобства
+if (empty($name)) {
+    $errors[] = "Имя не может быть пустым";
+}
+
+if (empty($email)) {
+    $errors[] = "Email не может быть пустым";
+} elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    $errors[] = "Некорректный email";
+}
+
+if (empty($age) || $age < 16 || $age > 60) {
+    $errors[] = "Возраст должен быть от 16 до 60 лет";
+}
+
+if (empty($faculty)) {
+    $errors[] = "Выберите факультет";
+}
+
+if (empty($educationForm)) {
+    $errors[] = "Выберите форму обучения";
+}
+
+// Если есть ошибки - сохраняем в сессию и перенаправляем
+if (!empty($errors)) {
+    $_SESSION['errors'] = $errors;
+    header("Location: index.php");
+    exit();
+}
+
+// Сохраняем в сессию
 $_SESSION['username'] = $name;
-$_SESSION['user_age'] = $age;
-$_SESSION['user_faculty'] = $faculty;
+$_SESSION['email'] = $email;
+$_SESSION['age'] = $age;
+$_SESSION['faculty'] = $faculty;
 $_SESSION['education_form'] = $educationForm;
-$_SESSION['agreement'] = $agree;
 
-// Перенаправляем обратно на главную страницу
-header("Location: form.html");
+// Сохраняем в файл
+$line = $name . ";" . $email . ";" . $age . ";" . $faculty . ";" . $educationForm . ";" . date('Y-m-d H:i:s') . "\n";
+file_put_contents("data.txt", $line, FILE_APPEND);
+
+// Перенаправляем на главную
+header("Location: index.php");
 exit();
+?>
