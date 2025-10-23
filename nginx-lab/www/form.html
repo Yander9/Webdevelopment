@@ -5,19 +5,117 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Регистрация студента</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: Arial; background: #f5f5f5; padding: 20px; }
-        .container { max-width: 500px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; }
-        h1 { text-align: center; color: #333; margin-bottom: 30px; }
-        .form-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
-        input, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 16px; }
-        .radio-group { margin-top: 10px; }
-        .radio-item { margin-bottom: 8px; }
-        button { width: 100%; background: #4CAF50; color: white; border: none; padding: 12px; border-radius: 4px; cursor: pointer; }
-        .required { color: #ff4444; }
-        .links { text-align: center; margin-top: 20px; }
-        .links a { color: #4CAF50; text-decoration: none; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 24px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        
+        input[type="text"],
+        input[type="number"],
+        input[type="email"],
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        .radio-group,
+        .checkbox-group {
+            margin-top: 10px;
+        }
+        
+        .radio-item,
+        .checkbox-item {
+            margin-bottom: 8px;
+        }
+        
+        .radio-item label,
+        .checkbox-item label {
+            font-weight: normal;
+            margin-left: 5px;
+        }
+        
+        button {
+            width: 100%;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            background: #45a049;
+        }
+        
+        .required {
+            color: #ff4444;
+        }
+
+        .location-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .api-loading {
+            background: #fff3cd;
+            color: #856404;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .links {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .links a {
+            color: #4CAF50;
+            text-decoration: none;
+        }
     </style>
 </head>
 <body>
@@ -25,21 +123,41 @@
         <h1>Регистрация студента</h1>
         
         <form id="studentForm" action="process.php" method="POST">
+            <!-- Имя (текстовое поле) -->
             <div class="form-group">
                 <label for="name">ФИО студента <span class="required">*</span></label>
                 <input type="text" id="name" name="name" placeholder="Введите ваше полное имя" required>
             </div>
 
+            <!-- Email -->
             <div class="form-group">
                 <label for="email">Email <span class="required">*</span></label>
                 <input type="email" id="email" name="email" placeholder="example@mail.ru" required>
             </div>
 
+            <!-- Возраст (числовое поле) -->
             <div class="form-group">
                 <label for="age">Возраст <span class="required">*</span></label>
                 <input type="number" id="age" name="age" min="16" max="60" placeholder="Введите ваш возраст" required>
             </div>
 
+            <!-- Местоположение (новое поле) -->
+            <div class="form-group">
+                <label for="location">Местоположение <span class="required">*</span></label>
+                <div class="location-group">
+                    <select id="region" name="region" required>
+                        <option value="">Выберите регион</option>
+                    </select>
+                    <select id="city" name="city" required>
+                        <option value="">Выберите город</option>
+                    </select>
+                </div>
+                <div id="location-loading" class="api-loading" style="display: none;">
+                    Загрузка данных о регионах...
+                </div>
+            </div>
+
+            <!-- Факультет (выпадающий список) -->
             <div class="form-group">
                 <label for="faculty">Факультет <span class="required">*</span></label>
                 <select id="faculty" name="faculty" required>
@@ -52,6 +170,7 @@
                 </select>
             </div>
 
+            <!-- Форма обучения (радио-кнопки) -->
             <div class="form-group">
                 <label>Форма обучения <span class="required">*</span></label>
                 <div class="radio-group">
@@ -66,6 +185,14 @@
                 </div>
             </div>
 
+            <!-- Согласие с правилами (чекбокс) -->
+            <div class="form-group">
+                <div class="checkbox-item">
+                    <input type="checkbox" id="agree" name="agree" value="yes" required>
+                    <label for="agree">Я согласен(на) с правилами университета <span class="required">*</span></label>
+                </div>
+            </div>
+
             <button type="submit">Зарегистрироваться</button>
         </form>
 
@@ -75,10 +202,100 @@
     </div>
 
     <script>
+        // Загрузка регионов при открытии формы
+        document.addEventListener('DOMContentLoaded', function() {
+            loadRegions();
+        });
+
+        // Загрузка списка регионов
+        async function loadRegions() {
+            const regionSelect = document.getElementById('region');
+            const loadingDiv = document.getElementById('location-loading');
+            
+            loadingDiv.style.display = 'block';
+            
+            try {
+                const response = await fetch('https://api.hh.ru/areas/113');
+                const data = await response.json();
+                
+                // Очищаем select
+                regionSelect.innerHTML = '<option value="">Выберите регион</option>';
+                
+                // Добавляем регионы
+                data.areas.forEach(region => {
+                    const option = document.createElement('option');
+                    option.value = region.id;
+                    option.textContent = region.name;
+                    regionSelect.appendChild(option);
+                });
+                
+            } catch (error) {
+                console.error('Ошибка загрузки регионов:', error);
+                regionSelect.innerHTML = '<option value="">Ошибка загрузки</option>';
+            } finally {
+                loadingDiv.style.display = 'none';
+            }
+        }
+
+        // Загрузка городов при выборе региона
+        document.getElementById('region').addEventListener('change', function() {
+            const regionId = this.value;
+            const citySelect = document.getElementById('city');
+            
+            if (!regionId) {
+                citySelect.innerHTML = '<option value="">Выберите город</option>';
+                return;
+            }
+            
+            loadCities(regionId);
+        });
+
+        // Загрузка городов для выбранного региона
+        async function loadCities(regionId) {
+            const citySelect = document.getElementById('city');
+            const loadingDiv = document.getElementById('location-loading');
+            
+            loadingDiv.style.display = 'block';
+            citySelect.innerHTML = '<option value="">Загрузка городов...</option>';
+            
+            try {
+                const response = await fetch(`https://api.hh.ru/areas/${regionId}`);
+                const data = await response.json();
+                
+                // Очищаем select
+                citySelect.innerHTML = '<option value="">Выберите город</option>';
+                
+                // Добавляем города
+                if (data.areas && data.areas.length > 0) {
+                    data.areas.forEach(city => {
+                        const option = document.createElement('option');
+                        option.value = city.id;
+                        option.textContent = city.name;
+                        citySelect.appendChild(option);
+                    });
+                } else {
+                    // Если у региона нет подрегионов, используем сам регион как город
+                    const option = document.createElement('option');
+                    option.value = data.id;
+                    option.textContent = data.name;
+                    citySelect.appendChild(option);
+                }
+                
+            } catch (error) {
+                console.error('Ошибка загрузки городов:', error);
+                citySelect.innerHTML = '<option value="">Ошибка загрузки</option>';
+            } finally {
+                loadingDiv.style.display = 'none';
+            }
+        }
+
+        // Alert перед отправкой формы
         document.getElementById("studentForm").addEventListener("submit", function(e) {
             const name = document.getElementById("name").value;
             const email = document.getElementById("email").value;
             const age = document.getElementById("age").value;
+            const region = document.getElementById("region");
+            const city = document.getElementById("city");
             const faculty = document.getElementById("faculty").value;
             
             let educationForm = "";
@@ -90,7 +307,10 @@
                 }
             }
 
-            alert(`Проверьте данные:\n\nФИО: ${name}\nEmail: ${email}\nВозраст: ${age}\nФакультет: ${faculty}\nФорма обучения: ${educationForm}\n\nНажмите OK для отправки.`);
+            const regionName = region.options[region.selectedIndex].text;
+            const cityName = city.options[city.selectedIndex].text;
+
+            alert(`Проверьте данные:\n\nФИО: ${name}\nEmail: ${email}\nВозраст: ${age}\nРегион: ${regionName}\nГород: ${cityName}\nФакультет: ${faculty}\nФорма обучения: ${educationForm}\n\nНажмите OK для отправки.`);
         });
     </script>
 </body>
