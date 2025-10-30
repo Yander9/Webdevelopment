@@ -1,6 +1,14 @@
 <?php
+require_once 'db.php';
+require_once 'Student.php';
 require_once 'UserInfo.php';
+
 session_start();
+
+// Создаем объект студента и получаем данные
+$student = new Student($pdo);
+$allStudents = $student->getAll();
+$totalStudents = $student->getCount();
 ?>
 <!DOCTYPE html>
 <html lang="ru">
@@ -23,7 +31,7 @@ session_start();
         }
         
         .container {
-            max-width: 500px;
+            max-width: 1200px;
             margin: 0 auto;
             background: white;
             padding: 30px;
@@ -53,6 +61,14 @@ session_start();
             margin: 20px 0;
         }
         
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        
         .api-data {
             background: #e8f4fd;
             padding: 20px;
@@ -67,6 +83,13 @@ session_start();
             border-radius: 4px;
         }
         
+        .db-data {
+            background: #fff3cd;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
         .links {
             text-align: center;
             margin-top: 20px;
@@ -76,6 +99,31 @@ session_start();
             color: #4CAF50;
             text-decoration: none;
             margin: 0 10px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        
+        .stats {
+            background: #e8f4fd;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+            text-align: center;
         }
     </style>
 </head>
@@ -96,6 +144,19 @@ session_start();
             <?php unset($_SESSION['errors']); ?>
         <?php endif; ?>
 
+        <!-- Вывод успеха -->
+        <?php if(isset($_SESSION['success'])): ?>
+            <div class="success">
+                ✅ <?= $_SESSION['success'] ?>
+            </div>
+            <?php unset($_SESSION['success']); ?>
+        <?php endif; ?>
+
+        <!-- Статистика -->
+        <div class="stats">
+            <strong>Всего студентов в базе:</strong> <?= $totalStudents ?>
+        </div>
+
         <!-- Данные из сессии -->
         <div class="session-data">
             <h3>Данные из сессии:</h3>
@@ -112,6 +173,43 @@ session_start();
                 </ul>
             <?php else: ?>
                 <p>Данных пока нет.</p>
+            <?php endif; ?>
+        </div>
+
+        <!-- Данные из базы данных -->
+        <div class="db-data">
+            <h3>Сохранённые данные из MySQL:</h3>
+            <?php if(!empty($allStudents)): ?>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Имя</th>
+                            <th>Email</th>
+                            <th>Возраст</th>
+                            <th>Регион</th>
+                            <th>Город</th>
+                            <th>Факультет</th>
+                            <th>Форма обучения</th>
+                            <th>Согласие</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach($allStudents as $row): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($row['name']) ?></td>
+                            <td><?= htmlspecialchars($row['email']) ?></td>
+                            <td><?= htmlspecialchars($row['age']) ?></td>
+                            <td><?= htmlspecialchars($row['region']) ?></td>
+                            <td><?= htmlspecialchars($row['city']) ?></td>
+                            <td><?= htmlspecialchars($row['faculty']) ?></td>
+                            <td><?= htmlspecialchars($row['education_form']) ?></td>
+                            <td><?= $row['agree_rules'] ? 'Да' : 'Нет' ?></td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php else: ?>
+                <p>Нет данных в базе.</p>
             <?php endif; ?>
         </div>
 
