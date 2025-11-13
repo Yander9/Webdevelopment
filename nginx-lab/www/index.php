@@ -1,263 +1,240 @@
 <?php
-require_once 'db.php';
-require_once 'Student.php';
-require_once 'UserInfo.php';
+require_once 'vendor/autoload.php';
 
-session_start();
 
-// Создаем объект студента и получаем данные
-$student = new Student($pdo);
-$allStudents = $student->getAll();
-$totalStudents = $student->getCount();
+
+use App\Services\RedisUserService;
+
+$redisService = new RedisUserService();
+
+// Обработка форм
+if ($_POST['action'] ?? '' === 'add_user') {
+    $id = uniqid();
+    $userData = [
+        'name' => $_POST['name'],
+        'email' => $_POST['email'],
+        'age' => $_POST['age'],
+        'city' => $_POST['city'],
+        'created_at' => date('Y-m-d H:i:s')
+    ];
+    $redisService->addUser($id, $userData);
+    header('Location: ?success=1');
+    exit;
+}
+
+if ($_GET['action'] ?? '' === 'delete') {
+    $redisService->deleteUser($_GET['id']);
+    header('Location: ?deleted=1');
+    exit;
+}
+
+if ($_POST['action'] ?? '' === 'update_user') {
+    $redisService->updateUser($_POST['id'], $_POST['field'], $_POST['value']);
+    header('Location: ?updated=1');
+    exit;
+}
+
+// Получение данных
+$allUsers = $redisService->getAllUsers();
+$usersCount = $redisService->getUsersCount();
+$ageStats = $redisService->getAgeStatistics();
+$cities = ['Москва', 'Санкт-Петербург', 'Казань', 'Новосибирск', 'Екатеринбург'];
 ?>
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Главная страница</title>
+    <title>Redis - Управление пользователями</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
-            padding: 20px;
-            line-height: 1.6;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 30px;
-            font-size: 24px;
-        }
-        
-        .session-data {
-            background: #f9f9f9;
-            padding: 20px;
-            margin: 20px 0;
-            border-radius: 4px;
-        }
-        
-        .error {
-            background: #f8d7da;
-            color: #721c24;
-            padding: 15px;
-            border-radius: 4px;
-            margin: 20px 0;
-        }
-        
-        .success {
-            background: #d4edda;
-            color: #155724;
-            padding: 15px;
-            border-radius: 4px;
-            margin: 20px 0;
-        }
-        
-        .api-data {
-            background: #e8f4fd;
-            padding: 20px;
-            margin: 20px 0;
-            border-radius: 4px;
-        }
-        
-        .user-info {
-            background: #f0f9ff;
-            padding: 20px;
-            margin: 20px 0;
-            border-radius: 4px;
-        }
-        
-        .db-data {
-            background: #fff3cd;
-            padding: 20px;
-            margin: 20px 0;
-            border-radius: 4px;
-        }
-        
-        .links {
-            text-align: center;
-            margin-top: 20px;
-        }
-        
-        .links a {
-            color: #4CAF50;
-            text-decoration: none;
-            margin: 0 10px;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-        }
-        
-        th, td {
-            padding: 12px 15px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        
-        th {
-            background-color: #f8f9fa;
-            font-weight: bold;
-        }
-        
-        .stats {
-            background: #e8f4fd;
-            padding: 15px;
-            margin: 20px 0;
-            border-radius: 4px;
-            text-align: center;
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: Arial; background: #1e272e; color: white; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 { text-align: center; color: #ff6b6b; margin-bottom: 30px; }
+        .card { background: #2d3436; padding: 20px; margin: 20px 0; border-radius: 8px; border-left: 4px solid #ff6b6b; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; color: #dfe6e9; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #636e72; border-radius: 4px; background: #2d3436; color: white; }
+        .btn { background: #ff6b6b; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin: 5px; }
+        .btn:hover { background: #ff5252; }
+        .btn-danger { background: #d63031; }
+        .btn-success { background: #00b894; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #636e72; }
+        th { background: #34495e; color: #ff6b6b; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; }
+        .stat-card { background: #34495e; padding: 15px; border-radius: 4px; text-align: center; }
+        .success { background: #00b894; color: white; padding: 10px; border-radius: 4px; margin: 10px 0; }
+        .user-form { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        @media (max-width: 768px) {
+            .user-form { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Главная страница</h1>
+        <h1>🔴 Redis - Система управления пользователями</h1>
 
-        <!-- Вывод ошибок -->
-        <?php if(isset($_SESSION['errors'])): ?>
-            <div class="error">
-                <h3>Ошибки:</h3>
-                <ul>
-                    <?php foreach($_SESSION['errors'] as $error): ?>
-                        <li><?= $error ?></li>
-                    <?php endforeach; ?>
-                </ul>
-            </div>
-            <?php unset($_SESSION['errors']); ?>
+        <?php if ($_GET['success'] ?? ''): ?>
+            <div class="success">✅ Пользователь успешно добавлен!</div>
         <?php endif; ?>
 
-        <!-- Вывод успеха -->
-        <?php if(isset($_SESSION['success'])): ?>
-            <div class="success">
-                ✅ <?= $_SESSION['success'] ?>
-            </div>
-            <?php unset($_SESSION['success']); ?>
+        <?php if ($_GET['deleted'] ?? ''): ?>
+            <div class="success">✅ Пользователь успешно удален!</div>
+        <?php endif; ?>
+
+        <?php if ($_GET['updated'] ?? ''): ?>
+            <div class="success">✅ Данные пользователя обновлены!</div>
         <?php endif; ?>
 
         <!-- Статистика -->
         <div class="stats">
-            <strong>Всего студентов в базе:</strong> <?= $totalStudents ?>
+            <div class="stat-card">
+                <h3>👥 Всего пользователей</h3>
+                <p style="font-size: 2em; color: #ff6b6b;"><?= $usersCount ?></p>
+            </div>
+            <div class="stat-card">
+                <h3>📊 Статистика по возрастам</h3>
+                <p>До 20: <?= $ageStats['under_20'] ?></p>
+                <p>20-30: <?= $ageStats['20_30'] ?></p>
+                <p>30-40: <?= $ageStats['30_40'] ?></p>
+                <p>40+: <?= $ageStats['over_40'] ?></p>
+            </div>
+            <div class="stat-card">
+                <h3>⚡ Redis</h3>
+                <p>Порт: 6379</p>
+                <p>Web UI: 8081</p>
+            </div>
         </div>
 
-        <!-- Данные из сессии -->
-        <div class="session-data">
-            <h3>Данные из сессии:</h3>
-            <?php if(isset($_SESSION['username'])): ?>
-                <ul>
-                    <li><strong>Имя:</strong> <?= $_SESSION['username'] ?></li>
-                    <li><strong>Email:</strong> <?= $_SESSION['email'] ?? 'Не указан' ?></li>
-                    <li><strong>Возраст:</strong> <?= $_SESSION['age'] ?? 'Не указан' ?></li>
-                    <li><strong>Регион:</strong> <?= $_SESSION['region'] ?? 'Не указан' ?></li>
-                    <li><strong>Город:</strong> <?= $_SESSION['city'] ?? 'Не указан' ?></li>
-                    <li><strong>Факультет:</strong> <?= $_SESSION['faculty'] ?? 'Не указан' ?></li>
-                    <li><strong>Форма обучения:</strong> <?= $_SESSION['education_form'] ?? 'Не указан' ?></li>
-                    <li><strong>Согласие с правилами:</strong> <?= $_SESSION['agree'] ?? 'Нет' ?></li>
-                </ul>
+        <!-- Форма добавления пользователя -->
+        <div class="card">
+            <h2>➕ Добавить нового пользователя</h2>
+            <form method="POST" class="user-form">
+                <input type="hidden" name="action" value="add_user">
+                <div class="form-group">
+                    <label>Имя пользователя:</label>
+                    <input type="text" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label>Email:</label>
+                    <input type="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label>Возраст:</label>
+                    <input type="number" name="age" min="1" max="120" required>
+                </div>
+                <div class="form-group">
+                    <label>Город:</label>
+                    <select name="city" required>
+                        <option value="">Выберите город</option>
+                        <?php foreach ($cities as $city): ?>
+                            <option value="<?= $city ?>"><?= $city ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-success">Добавить пользователя</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Список пользователей -->
+        <div class="card">
+            <h2>👥 Список пользователей</h2>
+            <?php if (empty($allUsers)): ?>
+                <p>Нет пользователей в базе данных</p>
             <?php else: ?>
-                <p>Данных пока нет.</p>
-            <?php endif; ?>
-        </div>
-
-        <!-- Данные из базы данных -->
-        <div class="db-data">
-            <h3>Сохранённые данные из MySQL:</h3>
-            <?php if(!empty($allStudents)): ?>
                 <table>
                     <thead>
                         <tr>
+                            <th>ID</th>
                             <th>Имя</th>
                             <th>Email</th>
                             <th>Возраст</th>
-                            <th>Регион</th>
                             <th>Город</th>
-                            <th>Факультет</th>
-                            <th>Форма обучения</th>
-                            <th>Согласие</th>
+                            <th>Дата создания</th>
+                            <th>Действия</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach($allStudents as $row): ?>
-                        <tr>
-                            <td><?= htmlspecialchars($row['name']) ?></td>
-                            <td><?= htmlspecialchars($row['email']) ?></td>
-                            <td><?= htmlspecialchars($row['age']) ?></td>
-                            <td><?= htmlspecialchars($row['region']) ?></td>
-                            <td><?= htmlspecialchars($row['city']) ?></td>
-                            <td><?= htmlspecialchars($row['faculty']) ?></td>
-                            <td><?= htmlspecialchars($row['education_form']) ?></td>
-                            <td><?= $row['agree_rules'] ? 'Да' : 'Нет' ?></td>
-                        </tr>
+                        <?php foreach ($allUsers as $key => $user): ?>
+                            <tr>
+                                <td><?= substr($key, 5) ?></td>
+                                <td><?= htmlspecialchars($user['name'] ?? '') ?></td>
+                                <td><?= htmlspecialchars($user['email'] ?? '') ?></td>
+                                <td><?= htmlspecialchars($user['age'] ?? '') ?></td>
+                                <td><?= htmlspecialchars($user['city'] ?? '') ?></td>
+                                <td><?= htmlspecialchars($user['created_at'] ?? '') ?></td>
+                                <td>
+                                    <a href="?action=delete&id=<?= substr($key, 5) ?>" 
+                                       class="btn btn-danger" 
+                                       onclick="return confirm('Удалить пользователя?')">Удалить</a>
+                                </td>
+                            </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
-            <?php else: ?>
-                <p>Нет данных в базе.</p>
             <?php endif; ?>
         </div>
 
-        <!-- Данные из API -->
-        <?php if(isset($_SESSION['api_data'])): ?>
-            <div class="api-data">
-                <h3>Данные из API (Регионы России):</h3>
-                <?php if(isset($_SESSION['api_data']['areas'])): ?>
-                    <div style="max-height: 200px; overflow-y: auto;">
-                        <?php 
-                        $regions = $_SESSION['api_data']['areas'];
-                        foreach(array_slice($regions, 0, 8) as $region):
-                            $cities = $region['areas'] ?? [];
-                            $cityNames = array_slice(array_column($cities, 'name'), 0, 2);
-                        ?>
-                            <div style="margin-bottom: 10px; padding: 8px; background: white; border-radius: 4px;">
-                                <strong><?= htmlspecialchars($region['name']) ?></strong>
-                                <?php if(!empty($cityNames)): ?>
-                                    <br>
-                                    <small>Города: <?= htmlspecialchars(implode(', ', $cityNames)) ?>
-                                    <?php if(count($cities) > 2): ?>...<?php endif; ?>
-                                    </small>
-                                <?php endif; ?>
-                            </div>
+        <!-- Поиск пользователей -->
+        <div class="card">
+            <h2>🔍 Поиск пользователей</h2>
+            <form method="GET" class="user-form">
+                <div class="form-group">
+                    <label>Поиск по email:</label>
+                    <input type="text" name="search_email" placeholder="Введите email">
+                </div>
+                <div class="form-group">
+                    <label>Поиск по городу:</label>
+                    <select name="search_city">
+                        <option value="">Все города</option>
+                        <?php foreach ($cities as $city): ?>
+                            <option value="<?= $city ?>"><?= $city ?></option>
                         <?php endforeach; ?>
-                    </div>
-                <?php elseif(isset($_SESSION['api_data']['error'])): ?>
-                    <p style="color: red;">Ошибка API: <?= $_SESSION['api_data']['error'] ?></p>
-                <?php endif; ?>
-            </div>
-        <?php endif; ?>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn">Найти</button>
+                    <a href="?" class="btn">Сбросить</a>
+                </div>
+            </form>
 
-        <!-- Информация о пользователе -->
-        <div class="user-info">
-            <h3>Информация о пользователе:</h3>
             <?php
-            $info = UserInfo::getInfo();
-            foreach ($info as $key => $val) {
-                echo htmlspecialchars($key) . ': ' . htmlspecialchars($val) . '<br>';
+            // Поиск пользователей
+            if ($_GET['search_email'] ?? '') {
+                $foundUser = $redisService->findUserByEmail($_GET['search_email']);
+                if ($foundUser) {
+                    echo "<div class='success'>Найден пользователь: " . htmlspecialchars($foundUser['name']) . "</div>";
+                } else {
+                    echo "<div style='background: #d63031; color: white; padding: 10px; border-radius: 4px;'>Пользователь не найден</div>";
+                }
+            }
+
+            if ($_GET['search_city'] ?? '') {
+                $cityUsers = $redisService->getUsersByCity($_GET['search_city']);
+                if (!empty($cityUsers)) {
+                    echo "<h3>Пользователи из города " . htmlspecialchars($_GET['search_city']) . ":</h3>";
+                    echo "<ul>";
+                    foreach ($cityUsers as $user) {
+                        echo "<li>" . htmlspecialchars($user['name']) . " (" . htmlspecialchars($user['email']) . ")</li>";
+                    }
+                    echo "</ul>";
+                }
             }
             ?>
         </div>
 
-        <!-- Ссылки -->
-        <div class="links">
-            <a href="form.html">Заполнить форму</a> |
-            <a href="view.php">Посмотреть все данные</a> |
-            <a href="clear_session.php">Очистить сессию</a>
+        <!-- Информация о Redis -->
+        <div class="card">
+            <h2>ℹ️ О Redis</h2>
+            <ul>
+                <li><strong>Тип:</strong> База данных в памяти (in-memory)</li>
+                <li><strong>Использование:</strong> Кэширование, сессии, быстрый доступ к данным</li>
+                <li><strong>Преимущества:</strong> Высокая скорость, простота использования</li>
+                <li><strong>Web интерфейс:</strong> <a href="http://localhost:8081" target="_blank" style="color: #ff6b6b;">Redis Commander</a></li>
+            </ul>
         </div>
     </div>
 </body>
