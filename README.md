@@ -311,7 +311,7 @@ docker-compose up -d --build
 
 
   
-Результат доступен по адресу [http://localhost:8080/](http://localhost:8080/form.html).
+Результат доступен по адресу [http://localhost:8080/](http://localhost:8080/).
 
 ---
 
