@@ -2,7 +2,6 @@
 require_once 'vendor/autoload.php';
 
 
-
 use App\Services\RedisUserService;
 
 $redisService = new RedisUserService();
