@@ -1,20 +1,15 @@
 <?php
+require 'vendor/autoload.php';
 require 'QueueManager.php';
-
-echo "👷 Worker started (Kafka)...\n";
-echo "📝 Listening for messages...\n";
 
 $q = new QueueManager();
 
+echo "👷 Рабочий запущен (Kafka)...\n";
+
 $q->consume(function($data) {
-    echo "📥 Received: " . json_encode($data) . "\n";
-    
-    // Имитация обработки
+    echo "📥 Получено сообщение: " . json_encode($data) . "\n";
     sleep(2);
-    
-    // Логируем в файл
-    $logEntry = date('Y-m-d H:i:s') . " - " . json_encode($data) . PHP_EOL;
-    file_put_contents('/var/www/html/processed_kafka.log', $logEntry, FILE_APPEND);
-    
-    echo "✅ Processed: {$data['name']}\n";
+    file_put_contents('processed_kafka.log', json_encode($data) . PHP_EOL, FILE_APPEND);
+    echo "✅ Обработано\n";
 });
+
