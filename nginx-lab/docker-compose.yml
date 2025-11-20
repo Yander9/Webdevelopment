@@ -2,39 +2,42 @@ version: '3.8'
 
 services:
   nginx:
-    image: nginx:latest
-    container_name: lab6_nginx
+    image: nginx:alpine
+    container_name: lab7_nginx
     ports:
       - "8080:80"
     volumes:
       - ./www:/var/www/html
-      - ./nginx:/etc/nginx/conf.d
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - php
 
   php:
     build: .
-    container_name: lab6_php
+    container_name: lab7_php
     volumes:
       - ./www:/var/www/html
     expose:
       - "9000"
     depends_on:
-      - redis
+      - kafka
 
-  redis:
-    image: redis:7-alpine
-    container_name: lab6_redis
-    ports:
-      - "6379:6379"
-    command: redis-server --appendonly yes
-
-  redis-commander:
-    image: rediscommander/redis-commander:latest
-    container_name: lab6_redis_commander
+  zookeeper:
+    image: bitnami/zookeeper:latest
+    container_name: lab7_zookeeper
     environment:
-      - REDIS_HOSTS=local:redis:6379
+      - ALLOW_ANONYMOUS_LOGIN=yes
     ports:
-      - "8081:8081"
-    depends_on:
-      - redis
+      - "2181:2181"
+
+  kafka:
+    image: bitnami/kafka:latest
+    container_name: lab7_kafka
+    ports:
+      - "9092:9092"
+    environment:
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
